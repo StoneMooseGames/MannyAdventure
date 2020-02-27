@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class LevelCreator : MonoBehaviour
 {
+    public GameObject player;
     public List<GameObject> levelparts;
     private List<GameObject> wayPointList = new List<GameObject>();
     private List<GameObject> partReNaming = new List<GameObject>();
@@ -21,23 +22,23 @@ public class LevelCreator : MonoBehaviour
     public int levelWidth;
     public bool randomWidth;
 
-    public int wayPointCount;
     private Vector3 wayPointPosition;
+    
 
 
     // Start is called before the first frame update
     void Start()
     {
        
-        startingPoint = transform.position;
-        Instantiate(levelStart, startingPoint, levelStart.transform.rotation);
-        Instantiate(Waypoint, startingPoint, Waypoint.transform.rotation);
+        
         currentLevelSize = 1;
         if (randomWidth) {
             if(levelWidth<20) { levelWidth = 20; }
             levelWidth = Random.Range(20, levelWidth);
         }
         CreateLevel();
+        startingPoint = GameObject.FindGameObjectWithTag("levelstart").gameObject.transform.position;
+        player.gameObject.transform.position = startingPoint + new Vector3(1, 1, 1);
         
 
     }
@@ -51,28 +52,46 @@ public class LevelCreator : MonoBehaviour
 
     public void CreateLevel() 
     {
+        Vector3 returnPlayerStartpoint = new Vector3(0,0,0);
+        
         int randomEndLevel = Random.Range(0, setMaxLevelSize);
-        Debug.Log(randomEndLevel);
+        int randomStartLevel = Random.Range(0, setMaxLevelSize);
+
+        Debug.Log(randomStartLevel + " is level start and " + randomEndLevel + " is end");
+       
         for (int a = 0; a < setMaxLevelSize; a++)
         {
 
-            if (isLevelDone) { return; }
+            if (isLevelDone) { return;  }
 
             if (nextLevelPositionZ < levelWidth)
             {
                 int randomLevel = Random.Range(0, levelparts.Count);
                 if (randomEndLevel == currentLevelSize)
                 {
-                    wayPointList.Add(Instantiate(Waypoint, new Vector3(nextLevelPositionX * partScaleX, startingPoint.y, nextLevelPositionZ * partScaleZ), Waypoint.transform.rotation) as GameObject);
-                    partReNaming.Add(Instantiate(levelEnd, new Vector3(nextLevelPositionX * partScaleX, startingPoint.y, nextLevelPositionZ * partScaleZ), levelStart.transform.rotation) as GameObject);
+                    
+                    wayPointList.Add(Instantiate(Waypoint, new Vector3(nextLevelPositionX * partScaleX, transform.position.y, nextLevelPositionZ * partScaleZ), Waypoint.transform.rotation) as GameObject);
+                    partReNaming.Add(Instantiate(levelEnd, new Vector3(nextLevelPositionX * partScaleX, transform.position.y, nextLevelPositionZ * partScaleZ), levelEnd.transform.rotation) as GameObject);
                     partReNaming[currentLevelSize - 1].name = "Level End piece: " + currentLevelSize;
+                    partReNaming[currentLevelSize - 1].gameObject.tag = "levelend";
                     wayPointList[currentLevelSize - 1].name = "waypoint: End Level";
+                    currentLevelSize++;
+                    
+                }
+                if (randomStartLevel == currentLevelSize)
+                {
+                    wayPointList.Add(Instantiate(Waypoint, new Vector3(nextLevelPositionX * partScaleX, transform.position.y, nextLevelPositionZ * partScaleZ), Waypoint.transform.rotation) as GameObject);
+                    partReNaming.Add(Instantiate(levelStart, new Vector3(nextLevelPositionX * partScaleX, transform.position.y, nextLevelPositionZ * partScaleZ), levelStart.transform.rotation) as GameObject);
+                    partReNaming[currentLevelSize - 1].name = "Level Start piece: " + currentLevelSize;
+                    partReNaming[currentLevelSize - 1].gameObject.tag = "levelstart"; 
+                    wayPointList[currentLevelSize - 1].name = "waypoint: Start Level";
                     currentLevelSize++;
                 }
                 else
                 {
-                    wayPointList.Add(Instantiate(Waypoint, new Vector3(nextLevelPositionX * partScaleX, startingPoint.y, nextLevelPositionZ * partScaleZ), Waypoint.transform.rotation) as GameObject);
-                    partReNaming.Add(Instantiate(levelparts[randomLevel], new Vector3(nextLevelPositionX * partScaleX, startingPoint.y, nextLevelPositionZ * partScaleZ), levelparts[randomLevel].transform.rotation) as GameObject);
+                    
+                    wayPointList.Add(Instantiate(Waypoint, new Vector3(nextLevelPositionX * partScaleX, transform.position.y, nextLevelPositionZ * partScaleZ), Waypoint.transform.rotation) as GameObject);
+                    partReNaming.Add(Instantiate(levelparts[randomLevel], new Vector3(nextLevelPositionX * partScaleX, transform.position.y, nextLevelPositionZ * partScaleZ), levelparts[randomLevel].transform.rotation) as GameObject);
                     partReNaming[currentLevelSize - 1].name = "" + currentLevelSize;
                     wayPointList[currentLevelSize - 1].name = "waypoint: " + currentLevelSize;
                     currentLevelSize++;
